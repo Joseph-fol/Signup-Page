@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+
+<body>
+    <h1>Welcome to Dashboard</h1>
+
+    <p id="userName"></p>
+    <p id="userEmail"></p>
+    <img width="70" style="border-radius: 50%; object-fit: cover;" id="userImage"><br>
+
+    <button onclick="logOut()">Sign-out</button> <br><br>
+
+    <input type="text" id="userInput" placeholder="Enter your title">
+    <button onclick="myBTN()">Add title</button>
+</body>
+
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-database.js";
+
+    // TODO: Add SDKs for Firebase products that you want to use  
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyD4_arjRluJZBuGZo1HJdimbyinBxPFbIU",
+        authDomain: "classtwo-bd588.firebaseapp.com",
+        projectId: "classtwo-bd588",
+        storageBucket: "classtwo-bd588.firebasestorage.app",
+        messagingSenderId: "506578448355",
+        appId: "1:506578448355:web:fd16e7e1c10ad11385fad6",
+        databaseURL: "https://classtwo-bd588-default-rtdb.firebaseio.com"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const database = getDatabase(app)
+
+    const photo = document.getElementById("userImage")
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log(user);
+
+            document.getElementById("userName").innerHTML = `Name: ${user.displayName}`;
+            document.getElementById("userEmail").innerHTML = `Email: ${user.email}`;
+            photo.src = user.photoURL;
+
+        } else {
+            console.log("User is signed out");
+
+            setTimeout(() => {
+                window.location.href = 'index.html'
+            }, 1000);
+
+        }
+    });
+
+    const logOut = () => {
+        // alert("working")
+        signOut(auth).then(() => {
+            setTimeout(() => {
+                window.location.href = "signin.html"
+            }, 1000);
+
+            alert("Sign out successful")
+
+        }).catch((error) => {
+            console.log(error)
+        });
+
+    }
+
+
+
+    function myBTN() {
+        if (userInput.value.trim() == '') {
+            console.log("Input cannot be empty");
+        } else {
+            console.log(userInput.value);
+            const titleObject = {
+                userInput: userInput.value,
+                dateClicked: new Date().toLocaleDateString(),
+                yearClicked: new Date().getFullYear(),
+                timeClicked: new Date().toLocaleTimeString()
+            }
+            console.log(titleObject);
+            const db = getDatabase();
+            const dbRef = ref(db, 'titles/2')
+            set(dbRef, titleObject)
+
+            userInput.value = ''
+        }
+    }
+
+    const dbRef = ref(database, 'titles')
+    onValue(dbRef, (snapshot) => {
+        const data = snapshot.val()
+        console.log(data);
+    })
+
+    window.myBTN = myBTN
+    window.logOut = logOut
+    // .then    -   To get a result
+    // .catch   -   To catch an error
+</script>
+
+</html>
