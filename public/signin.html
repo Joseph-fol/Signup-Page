@@ -19,7 +19,6 @@
         padding: 0;
         box-sizing: border-box;
         font-family: "Montserrat", sans-serif;
-        ;
     }
 
     body {
@@ -37,6 +36,16 @@
         padding: 20px 40px;
     }
 
+    @media screen and (max-width:460px) {
+        .page {
+            padding: 20px 20px;
+        }
+
+        body {
+            margin: 20px;
+        }
+    }
+
     .form-control {
         border: none;
     }
@@ -51,10 +60,25 @@
 <body>
     <div class="page col-lg-6 col-md-10 col-sm-10 col-xs-12 bg-white py-4">
         <h2 class="text-left pt-3 fw-bold">Sign-in</h2>
-        <p class="">Please enter your details</p>
+        <p>Please enter your details</p>
+
+        <div class="fw-bold w-100 bg-primary bg-opacity-50 text-black p-2 rounded" style="display: none;"
+            id="successMsg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 48 48">
+                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="4">
+                    <path
+                        d="m24 4l5.253 3.832l6.503-.012l1.997 6.188l5.268 3.812L41 24l2.021 6.18l-5.268 3.812l-1.997 6.188l-6.503-.012L24 44l-5.253-3.832l-6.503.012l-1.997-6.188l-5.268-3.812L7 24l-2.021-6.18l5.268-3.812l1.997-6.188l6.503.012z" />
+                    <path d="m17 24l5 5l10-10" />
+                </g>
+            </svg> Login Successful !
+        </div>
+
+
+        <p id="errorDisplay" class="fw-semibold w-100 bg-danger bg-opacity-50 text-black p-2 rounded"
+            style="display: none;"></p>
+
 
         <div class="mt-5">
-
             <div class="d-flex justify-content-center align-items-center border px-3 rounded">
                 <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
                     <path fill="currentColor"
@@ -171,7 +195,9 @@
 
     const userEmail = document.getElementById("email")
     const userPassword = document.getElementById("password")
-    
+    const successMsg = document.getElementById("successMsg")
+    const errorDisplay = document.getElementById("errorDisplay")
+
     const signIn = () => {
         const userEmail = email.value
         const userPassword = password.value
@@ -180,17 +206,61 @@
             .then((userCredential) => {
                 const user = userCredential.user;
                 console.log(user);
-                alert("Login Successful")
+                successMsg.style.display = "block"
+                errorDisplay.style.display = "none"
 
                 setTimeout(() => {
                     window.location.href = 'dashboard.html'
                 }, 1000);
 
             })
+
             .catch((error) => {
                 const errorCode = error.code;
-                const errorMessage = error.message;
-                alert(errorMessage)
+                console.log(errorCode);
+
+                if (!userEmail || !userPassword) {
+                    errorDisplay.style.display = "block"
+                    errorDisplay.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24"><path fill="currentColor" d="M12.713 16.713Q13 16.425 13 16t-.288-.712T12 15t-.712.288T11 16t.288.713T12 17t.713-.288m0-4Q13 12.425 13 12V8q0-.425-.288-.712T12 7t-.712.288T11 8v4q0 .425.288.713T12 13t.713-.288M12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m0-8"/></svg>
+            All field are required`
+                }
+
+                if (error.code == "auth/invalid-credential") {
+                    errorDisplay.style.display = "block"
+                    errorDisplay.innerHTML = ""
+                    errorDisplay.innerHTML += `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24"><path fill="currentColor" d="M12.713 16.713Q13 16.425 13 16t-.288-.712T12 15t-.712.288T11 16t.288.713T12 17t.713-.288m0-4Q13 12.425 13 12V8q0-.425-.288-.712T12 7t-.712.288T11 8v4q0 .425.288.713T12 13t.713-.288M12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m0-8"/></svg>
+                    Invalid credential`
+                }
+
+                if (error.code == "auth/user-not-found") {
+                    errorDisplay.style.display = "block"
+                    errorDisplay.innerHTML = ""
+                    errorDisplay.innerHTML += `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24"><path fill="currentColor" d="M12.713 16.713Q13 16.425 13 16t-.288-.712T12 15t-.712.288T11 16t.288.713T12 17t.713-.288m0-4Q13 12.425 13 12V8q0-.425-.288-.712T12 7t-.712.288T11 8v4q0 .425.288.713T12 13t.713-.288M12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m0-8"/></svg>
+                    User does not exist`
+                }
+
+                if (error.code == "auth/wrong-password") {
+                    errorDisplay.style.display = "block"
+                    errorDisplay.innerHTML = ""
+                    errorDisplay.innerHTML += `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24"><path fill="currentColor" d="M12.713 16.713Q13 16.425 13 16t-.288-.712T12 15t-.712.288T11 16t.288.713T12 17t.713-.288m0-4Q13 12.425 13 12V8q0-.425-.288-.712T12 7t-.712.288T11 8v4q0 .425.288.713T12 13t.713-.288M12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m0-8"/></svg>
+                    Incorrect password`
+                }
+
+                if (error.code == "auth/user-disabled") {
+                    errorDisplay.style.display = "block"
+                    errorDisplay.innerHTML = ""
+                    errorDisplay.innerHTML += `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24"><path fill="currentColor" d="M12.713 16.713Q13 16.425 13 16t-.288-.712T12 15t-.712.288T11 16t.288.713T12 17t.713-.288m0-4Q13 12.425 13 12V8q0-.425-.288-.712T12 7t-.712.288T11 8v4q0 .425.288.713T12 13t.713-.288M12 22q-2.075 0-3.9-.788t-3.175-2.137T2.788 15.9T2 12t.788-3.9t2.137-3.175T8.1 2.788T12 2t3.9.788t3.175 2.137T21.213 8.1T22 12t-.788 3.9t-2.137 3.175t-3.175 2.138T12 22m0-2q3.35 0 5.675-2.325T20 12t-2.325-5.675T12 4T6.325 6.325T4 12t2.325 5.675T12 20m0-8"/></svg>
+                    Your account has been disabled`
+                }
+
+                else{
+                    console.log(error.code)
+                }
             });
     }
 
